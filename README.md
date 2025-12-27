@@ -2,7 +2,11 @@
 A repo hosting all my Bangumi scripts (JavaScript) for backup.
 
 
-## [[组件]现实人物收藏高亮](https://bgm.tv/group/topic/444709)
+## 已发布组件
+
+
+### [[组件]现实人物收藏高亮](https://bgm.tv/group/topic/444709)
+
 
 组件页：[https://bgm.tv/dev/app/2973](https://bgm.tv/dev/app/2973)，感谢Sai老板过审
 
@@ -17,3 +21,21 @@ v2.0.0：更新按钮样式；使用API；新增每日自动更新
 ![](https://p.sda1.dev/29/9b5534b8144feb485bbe042ff008a33f/效果.png)
 
 由于我根本不会写全靠AI，有什么问题我将狠狠拷打AI
+
+
+### [[组件]更好的人物近况](https://bgm.tv/group/topic/445640)
+
+
+组件页：[https://bgm.tv/dev/app/5256](https://bgm.tv/dev/app/5256)，感谢 Sai 老板光速过审
+
+更好的人物近况页面，提供类型筛选功能~~名字来源最近沉迷的泰拉瑞亚模组~~
+
+v1.1.0：适配关灯模式；翻页保持类型选择
+
+使用方法：进入 人物 - 关注人物更新[https://bgm.tv/mono/update](https://bgm.tv/mono/update) - 类型筛选
+
+效果
+![](https://p.sda1.dev/29/6160cc0e02b936f4b1c942fec4d3f814/image.png)
+
+依旧全都不会写，Powered by AI
+
