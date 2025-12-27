@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         更好的人物近况
-// @version      1.0.0
+// @version      1.1.0
 // @description  更好的人物近况页面，提供类型筛选功能
 // @author       Konico
 // @match        https://bgm.tv/mono/update*
@@ -22,7 +22,8 @@
         box-sizing: border-box; width: 100%;
         padding: 5px 20px 5px 0;
         padding-left: max(2%, calc((100% - 1160px) / 2));
-        background: #fff; border-bottom: 1px solid #EEE;
+        background: transparent; 
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
         font-size: 13px; clear: both;
     }
     .filter-btn {
@@ -30,8 +31,8 @@
         cursor: pointer; color: #0084B4; border-radius: 10px;
         transition: all 0.2s; user-select: none;
     }
-    .filter-btn:hover { background: #E1F0FA; }
-    .filter-btn.active { background: #F09199; color: white !important; font-weight: bold; }
+    .filter-btn:hover { background: #F09199; color: white !important;}
+    .filter-btn.active { background: #F09199; color: white !important;}
     .filter-hide { display: none !important; }
 `;
     document.head.appendChild(style);
@@ -64,12 +65,28 @@
 
         const bar = createUI();
         ul.parentNode.appendChild(bar);
+
+        let savedType = 'all';
+        if (document.referrer && document.referrer.indexOf('/mono/update') !== -1) {
+            savedType = sessionStorage.getItem('bgm_mono_filter_session') || 'all';
+        } else {
+            sessionStorage.removeItem('bgm_mono_filter_session');
+        }
+
+        if (savedType !== 'all') {
+            setTimeout(() => applyFilter(savedType), 0);
+        }
     }
 
     function createUI() {
         const div = document.createElement('div');
         div.id = 'mono-filter-wrapper';
         div.innerHTML = `<span style="color:#999;font-size:12px;margin-right:10px">类型筛选:</span>`;
+
+        let savedType = 'all';
+        if (document.referrer && document.referrer.indexOf('/mono/update') !== -1) {
+            savedType = sessionStorage.getItem('bgm_mono_filter_session') || 'all';
+        }
 
         const opts = [
             { txt: '全部', val: 'all' },
@@ -82,12 +99,15 @@
 
         opts.forEach(opt => {
             const btn = document.createElement('span');
-            btn.className = 'filter-btn' + (opt.val === 'all' ? ' active' : '');
+            btn.className = 'filter-btn' + (opt.val === savedType ? ' active' : '');
             btn.textContent = opt.txt;
 
             btn.addEventListener('click', function () {
                 div.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+
+                sessionStorage.setItem('bgm_mono_filter_session', opt.val);
+
                 applyFilter(opt.val);
             });
 
