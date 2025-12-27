@@ -55,3 +55,12 @@ v1.1.0：适配关灯模式；翻页保持类型选择
 更适合个人体质的精选职位
 
 
+## 自用油猴脚本
+
+
+### PRTS to Bangumi Wiki
+
+
+提取PRTS人物详情为Bangumi Wiki格式，并下载Elite0立绘
+
+
