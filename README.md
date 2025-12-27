@@ -64,3 +64,9 @@ v1.1.0：适配关灯模式；翻页保持类型选择
 提取PRTS人物详情为Bangumi Wiki格式，并下载Elite0立绘
 
 
+### NetEase Music to Bangumi Wiki
+
+
+提取网易云音乐专辑信息为Bangumi Wiki格式，并下载专辑封面
+
+
