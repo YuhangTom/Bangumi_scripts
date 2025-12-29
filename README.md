@@ -46,9 +46,9 @@ v1.1.0：适配关灯模式；翻页保持类型选择
 
 效果：
 以[CloverWorks](https://bgm.tv/person/32356/works)为例
-![](https://p.sda1.dev/29/88aec26798a22c05e9ae10d913f05c04/image.png)
+![](https://p.sda1.dev/29/6cb31c163a1fdcebb1dde33fade44f3e/image.png)
 隐藏收藏
-![](https://p.sda1.dev/29/ab6205f51c30961d778176bf5eebdd69/image.png)
+![](https://p.sda1.dev/29/c8b1c97f79b62025773d094b83f6c4d3/image.png)
 只看收藏
 ![](https://p.sda1.dev/29/f8dcd6bd2ca401a4428914d496043d9a/image.png)
 
