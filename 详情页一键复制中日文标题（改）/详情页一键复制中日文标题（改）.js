@@ -610,13 +610,6 @@ class Storage {
                                 return '';
                             },
                         },
-                        romaji: {
-                            label: '罗马音',
-                            method: () => {
-                                const wrapper = $('#bangumiInfo .infobox_container #infobox li').eq(1);
-                                return $(wrapper.contents()[1]).text()
-                            },
-                        },
                     };
 
                     const title = titleMapping[userSettings.titleCode]
@@ -658,7 +651,6 @@ class Storage {
             options: [
                 { value: 'main', label: '主标题' },
                 { value: 'zh', label: '中文名' },
-                { value: 'romaji', label: '罗马音' },
             ],
             className: 'bct-select bct-control',
             onChange: (e) => {
