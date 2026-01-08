@@ -1,13 +1,17 @@
-// @name         作品页隐藏已收藏条目
-// @version      1.0.0
-// @description  在作品页添加按钮隐藏/只看已收藏条目，再次点击恢复
+// @name         作品页、目录页隐藏/只看已收藏条目
+// @version      2.0.0
+// @description  在作品页、目录页添加按钮隐藏/只看已收藏条目，再次点击恢复
 // @author       Konico
 
 (function () {
     'use strict';
 
     const path = location.pathname;
-    if (path.indexOf('/works') === -1 || path.indexOf('/works/voice') !== -1) return;
+
+    const isWorks = path.indexOf('/works') !== -1 && path.indexOf('/works/voice') === -1;
+    const isIndex = path.indexOf('/index/') !== -1;
+
+    if (!isWorks && !isIndex) return;
 
     const style = document.createElement('style');
     style.textContent = `
