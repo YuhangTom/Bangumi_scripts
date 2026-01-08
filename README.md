@@ -40,17 +40,25 @@ v1.1.0：适配关灯模式；翻页保持类型选择
 依旧全都不会写，Powered by AI
 
 
-### [[组件]作品页隐藏已收藏条目](https://bgm.tv/group/topic/446851)
-组件页：[https://bgm.tv/dev/app/5309](https://bgm.tv/dev/app/5309)
-类似[条目列表页隐藏已收藏条目](https://bgm.tv/dev/app/2346)，在作品页添加按钮隐藏/只看已收藏条目，再次点击恢复。
+### [[组件]作品页、目录页隐藏/只看已收藏条目](https://bgm.tv/group/topic/446851)
+组件页：[url=https://bgm.tv/dev/app/5309]https://bgm.tv/dev/app/5309[/url]
+类似[url=https://bgm.tv/dev/app/2346]条目列表页隐藏已收藏条目[/url]，在作品页添加按钮隐藏/只看已收藏条目，再次点击恢复。
 
-效果：
-以[CloverWorks](https://bgm.tv/person/32356/works)为例
-![](https://p.sda1.dev/29/6cb31c163a1fdcebb1dde33fade44f3e/image.png)
+v2.0.0：适配目录页
+以[url=https://bgm.tv/index/44847]全年代日本动画佳作榜 中日英三网站综合资深评分[1-1000][/url]为例
+[img]https://p.sda1.dev/30/46250b0c5ed6d2692869fa9946e3ba06/image.png[/img]
 隐藏收藏
-![](https://p.sda1.dev/29/c8b1c97f79b62025773d094b83f6c4d3/image.png)
+[img]https://p.sda1.dev/30/2175070e1b3ec30323f6f9ad31191197/image.png[/img]
 只看收藏
-![](https://p.sda1.dev/29/f8dcd6bd2ca401a4428914d496043d9a/image.png)
+[img]https://p.sda1.dev/30/bbd44f69da61e4073823b2d48296af18/image.png[/img]
+
+v1.0.0：
+效果：以[url=https://bgm.tv/person/32356/works]CloverWorks[/url]为例
+[img]https://p.sda1.dev/29/6cb31c163a1fdcebb1dde33fade44f3e/image.png[/img]
+隐藏收藏
+[img]https://p.sda1.dev/29/c8b1c97f79b62025773d094b83f6c4d3/image.png[/img]
+只看收藏
+[img]https://p.sda1.dev/29/f8dcd6bd2ca401a4428914d496043d9a/image.png[/img]
 
 依然Powered by AI
 
