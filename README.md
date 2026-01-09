@@ -65,6 +65,21 @@ v1.0.0：
 依然Powered by AI
 
 
+### [[组件]单集未看过时隐藏讨论](https://bgm.tv/group/topic/448034)
+组件页：[https://bgm.tv/dev/app/5358](https://bgm.tv/dev/app/5358)
+单集未看过时隐藏全部单集讨论（单集评论）以防剧透，可以安心阅读单集简介和制作人员，提供按钮切换显示。根据点格子进度判断，不支持跳着点格子的情况。
+
+效果：
+打开单集讨论时进行判断
+![](https://p.sda1.dev/30/dfe121bc00c50a086c53b00a6327c751/image.png)
+未看过时隐藏全部单集讨论
+![](https://p.sda1.dev/30/0edace92a2beb88470b9a4ab412f5462/image.png)
+点击显示讨论，再次点击隐藏
+![](https://p.sda1.dev/30/0286b558cd4237e9cf50d80962a09099/image.png)
+
+Powered by AI
+
+
 ## 未发布组件
 
 
