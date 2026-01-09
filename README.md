@@ -94,7 +94,9 @@ Powered by AI
 更好的声优演出角色选择器，支持同时选择类型和角色，并根据类型更新角色计数。
 
 效果：
-![](https://p.sda1.dev/30/76b94faeafe9204aebadf60f66e70849/image.png)
+![](https://p.sda1.dev/30/58255ff73f858006b67620bd6763d79a/image.png)
+可以同时与[声优页 角色列表 按作品id排序 按看过筛选](https://bgm.tv/dev/app/4165)和[声优角色页根据条目收藏状态筛选](https://bgm.tv/dev/app/2783)一起使用
+![](https://p.sda1.dev/30/4bf5e003b88ed6f0f396112de869cac7/image.png)
 
 Powered by AI
 
