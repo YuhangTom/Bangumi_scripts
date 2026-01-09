@@ -86,6 +86,19 @@ v1.0.0：
 Powered by AI
 
 
+### [[组件] 更好的声优演出角色选择器](https://bgm.tv/group/topic/448035)
+
+
+组件页：[https://bgm.tv/dev/app/5359](https://bgm.tv/dev/app/5359)
+
+更好的声优演出角色选择器，支持同时选择类型和角色，并根据类型更新角色计数。
+
+效果：
+![](https://p.sda1.dev/30/76b94faeafe9204aebadf60f66e70849/image.png)
+
+Powered by AI
+
+
 ## 未发布组件
 
 
