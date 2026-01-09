@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         单集未看过时隐藏讨论
 // @version      1.0.0
-// @description  单集未看过时隐藏全部单集讨论（单集评论）以防剧透，提供按钮切换显示。根据点格子进度判断，不支持跳着点格子的情况。
+// @description  单集未看过时隐藏全部单集讨论（单集评论）以防剧透，可以安心阅读单集简介和制作人员，提供按钮切换显示。根据点格子进度判断，不支持跳着点格子的情况。
 // @author       Konico
 // @match        https://bgm.tv/ep/*
 // @match        https://bangumi.tv/ep/*
