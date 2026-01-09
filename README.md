@@ -5,7 +5,7 @@ A repo hosting all my Bangumi scripts (JavaScript) for backup.
 ## 已发布组件
 
 
-### [[组件]现实人物收藏高亮](https://bgm.tv/group/topic/444709)
+### [[组件] 现实人物收藏高亮](https://bgm.tv/group/topic/444709)
 
 
 组件页：[https://bgm.tv/dev/app/2973](https://bgm.tv/dev/app/2973)，感谢Sai老板过审
@@ -23,7 +23,7 @@ v2.0.0：更新按钮样式；使用API；新增每日自动更新
 由于我根本不会写全靠AI，有什么问题我将狠狠拷打AI
 
 
-### [[组件]更好的人物近况](https://bgm.tv/group/topic/445640)
+### [[组件] 更好的人物近况](https://bgm.tv/group/topic/445640)
 
 
 组件页：[https://bgm.tv/dev/app/5256](https://bgm.tv/dev/app/5256)，感谢 Sai 老板光速过审
@@ -40,7 +40,7 @@ v1.1.0：适配关灯模式；翻页保持类型选择
 依旧全都不会写，Powered by AI
 
 
-### [[组件]作品页、目录页隐藏/只看已收藏条目](https://bgm.tv/group/topic/446851)
+### [[组件] 作品页、目录页隐藏/只看已收藏条目](https://bgm.tv/group/topic/446851)
 
 
 组件页：[https://bgm.tv/dev/app/5309](https://bgm.tv/dev/app/5309)
@@ -68,7 +68,7 @@ v1.0.0：
 依然Powered by AI
 
 
-### [[组件]单集未看过时隐藏讨论](https://bgm.tv/group/topic/448034)
+### [[组件] 单集未看过时隐藏讨论](https://bgm.tv/group/topic/448034)
 
 
 组件页：[https://bgm.tv/dev/app/5358](https://bgm.tv/dev/app/5358)
