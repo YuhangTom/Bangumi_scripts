@@ -1,5 +1,5 @@
 // @name         作品页、目录页隐藏/只看已收藏条目
-// @version      2.0.0
+// @version      2.1.0
 // @description  在作品页、目录页添加按钮隐藏/只看已收藏条目，再次点击恢复
 // @author       Konico
 
@@ -37,6 +37,9 @@
         a.href = 'javascript:;';
         a.innerText = text;
         a.id = id;
+
+        a.removeAttribute('target');
+
         toolBar.appendChild(a);
         return a;
     }
@@ -99,13 +102,17 @@
         }
     }
 
-    btnHide.onclick = function () {
+    btnHide.onclick = function (e) {
+        if (e) e.preventDefault();
+
         isHideActive = !isHideActive;
         if (isHideActive) isShowActive = false;
         runFilter();
     };
 
-    btnShow.onclick = function () {
+    btnShow.onclick = function (e) {
+        if (e) e.preventDefault();
+
         isShowActive = !isShowActive;
         if (isShowActive) isHideActive = false;
         runFilter();
