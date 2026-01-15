@@ -5,7 +5,7 @@ if (isUserPage) {
     $('.network_service').append(
         '<li>' +
         '<span class="service" style="background-color:#39c5bb;">Mikuorz</span>' +
-        `<a rel="me" class="l" href="https://report.mikuorz.top/report.html?uid=${username}" target="_blank">生成年度动画总结</a>` +
+        `<a rel="me" class="l" href="https://report.mikuorz.top/report.html?uid=${username}" target="_blank">年度动画总结</a>` +
         '</li>'
     );
 }
