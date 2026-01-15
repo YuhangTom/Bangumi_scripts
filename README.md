@@ -135,3 +135,8 @@ Powered by AI
 提取网易云音乐专辑信息为Bangumi Wiki格式，并下载专辑封面
 
 
+### mikuorz年度动画总结
+
+
+在个人主页添加生成mikuorz年度动画总结的按钮
+
