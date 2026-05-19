@@ -30,13 +30,28 @@ document.head.appendChild(style);
 // ------------------------------------------
 
 const $ = selectors => document.querySelectorAll(selectors);
+const validels = els => els && els.length > 0;
 const batch = (selectors, callback) => document.querySelectorAll(selectors).forEach(callback);
 
 const getData = (key, def) => localStorage[key] || def;
 const setData = (key, val) => localStorage[key] = val;
 
-var blacklist = JSON.parse(getData('staffblacklist') || "[]");
-// 修改后的 target：加入了 .badge_actor a 以匹配右侧角色栏的声优
+const waitel = (selector, callback, root = document.body) => {
+    const el = $(selector);
+    if (validels(el)) return callback(el);
+    const mo = new MutationObserver((_, obs) => {
+        const el = $(selector);
+        if (validels(el)) {
+            obs.disconnect();
+            callback(el);
+        }
+    });
+    mo.observe(root, { childList: true, subtree: true });
+};
+
+let blacklist = [];
+try { blacklist = JSON.parse(getData('staffblacklist') || "[]"); } catch (e) { }
+// 目标包含了声优角色栏
 const target = '#infobox li a, #infobox .blacklist-exNode, .badge_actor a';
 const formatName = name => name.replace(/[\s\[\]()（）.,/&＆:;：；・·`*＊\-_^%$#@!{}|\\+©／【】「」<>〈〉『』〖〗〔〕﹛﹜～~…¯＿￣—﹢‐﹦=﹤～“”′＂。？！﹫﹨《》]/g, "");
 const personnow = () => {
@@ -45,6 +60,7 @@ const personnow = () => {
     }
     return "";
 }
+
 const insertAfter = (newnode, oldnode) => {
     const parent = oldnode.parentNode;
     if (parent.lastChild == oldnode)
@@ -60,9 +76,10 @@ function addBlackList(name) {
     batch('#blacklist-add', el => el.classList.replace('toggle-blacklist-button-visible', 'toggle-blacklist-button-invisible'));
     batch('#blacklist-del', el => el.classList.replace('toggle-blacklist-button-invisible', 'toggle-blacklist-button-visible'));
 }
+
 function delBlackList(name) {
     let n = name || personnow();
-    for (let i in blacklist) {
+    for (let i = 0; i < blacklist.length; i++) {
         if (blacklist[i].url == location.pathname || blacklist[i].name == n) {
             blacklist.splice(i, 1);
             setData("staffblacklist", JSON.stringify(blacklist));
@@ -72,49 +89,73 @@ function delBlackList(name) {
         }
     }
 }
+
 function delBlackList2(id) {
     batch('#blacklist-lst .blacklist-' + id, el => {
         delBlackList(el.innerText);
-        a.remove();
+        el.remove();
     });
 }
+
+function createDelBtn(index) {
+    let btn = document.createElement("span");
+    btn.classList.add("remove-blacklist-btn");
+    btn.setAttribute("data-tooltip", "移除黑名单");
+    btn.addEventListener("click", () => delBlackList2(index));
+    let icon = document.createElement("span");
+    icon.classList.add("icon-plus");
+    btn.appendChild(icon);
+    return btn;
+}
+
 function addBlackList2() {
     let i = blacklist.length;
-    let namein = $('#blacklist-lst input');
-    let v = namein.val();
-    if (v == "") return;
+    let namein = $('#blacklist-lst .inputtext');
+    if (!validels(namein)) return;
+    let v = namein[0].value;
+    if (!v) {
+        alert("请输入名字！");
+        return;
+    }
     addBlackList(v);
-    namein.val("");
-    batch('#blacklist-lst ul', el => {
-        let item = document.createElement("li");
-        item.classList.add("blacklist-" + i);
-        item.innerHTML = blacklist[i].name + '<span class="icon-plus" />';
-        let delbtn = document.createElement("span");
-        delbtn.classList.add("icon-plus");
-        delbtn.addEventListener("click", () => delBlackList2(i));
-        item.appendChild(delbtn);
-        el.appendChild(item);
+    namein[0].value = "";
+    batch('#blacklist-lst tbody', el => {
+        let tr = document.createElement("tr");
+        tr.classList.add("blacklist-" + i);
+
+        let td1 = document.createElement("td");
+        td1.innerText = blacklist[i].name;
+
+        let td2 = document.createElement("td");
+        td2.appendChild(createDelBtn(i));
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+
+        el.insertBefore(tr, el.children[el.children.length - 2]);
     });
 }
+
 function isblack(name) {
     if (name.length > 0) {
-        for (var item of blacklist)
+        for (let item of blacklist)
             if (item.name == name)
                 return true;
     }
     return false;
 }
 
+const markstaff_root = "#infobox";
 const markstaff = () => {
     console.log("staff-blacklist: mark");
-    batch("#infobox > li, #infobox > .sub_container > ul > li", el => {
+    batch(`${markstaff_root} > li, ${markstaff_root} > .sub_container > ul > li`, el => {
         if (el.classList.contains("sub_container")
             || el.classList.contains("sub_group")
             || el.classList.contains("sub_section")
             || el.classList.contains("blacklist-marked-infobox-row")
         )
             return;
-        for (var sel of el.parentNode.childNodes) {
+        for (let sel of el.parentNode.childNodes) {
             if (sel.nodeName.toLowerCase() == 'li'
                 && sel.classList.contains("sub_section"))
                 return;
@@ -136,7 +177,7 @@ const markstaff = () => {
                         isFirst = false;
                     }
                     else {
-                        var nel = document.createTextNode(seps);
+                        let nel = document.createTextNode(seps);
                         insertAfter(nel, tel);
                         tel = nel;
                     }
@@ -158,7 +199,7 @@ const markstaff = () => {
                         seps += text.substring(text.length - len);
                         text = text.substring(0, text.length - len);
                     }
-                    var nel = document.createElement("span");
+                    let nel = document.createElement("span");
                     nel.innerText = text;
                     text = "";
                     nel.classList.add("blacklist-exNode");
@@ -191,20 +232,24 @@ const markstaff = () => {
         let name = formatName(el.innerText);
         if (isblack(name)) {
             el.classList.add("isblacklist");
-
             el.title = "黑名单警告！";
         }
     });
 };
+
+const quickedit_root = "#headerSubject";
 const quickedit = () => {
+    const addelid = "blacklist-add";
+    const delelid = "blacklist-del";
+    if (validels($("#" + addelid))) return;
     console.log("staff-blacklist: quick edit");
-    var els = $('#headerSubject .subjectNav .navTabs .collect');
+    let els = $(`${quickedit_root} .subjectNav .navTabs .collect`);
     if (els.length > 0) {
-        var el = els[0];
-        var add = document.createElement("span");
-        var del = document.createElement("span");
-        add.id = "blacklist-add";
-        del.id = "blacklist-del";
+        let el = els[0];
+        let add = document.createElement("span");
+        let del = document.createElement("span");
+        add.id = addelid;
+        del.id = delelid;
         add.classList.add("toggle-blacklist-button");
         del.classList.add("toggle-blacklist-button");
         add.innerHTML = "<a>加入黑名单</a>";
@@ -223,50 +268,101 @@ const quickedit = () => {
         el.appendChild(del);
     }
 };
+
+const editor_root = "#columnSearchB > form > span.text";
 const editor = () => {
+    const elid = "blacklist-lst";
+    if (validels($("#" + elid))) return;
     console.log("staff-blacklist: editor");
-    batch('#columnB', el => {
-        var table = document.createElement("div");
-        table.id = "blacklist-lst";
-        table.innerHTML = '<h2 class="subtitle">staff黑名单</h2>';
-        var ul = document.createElement("ul");
-        for (let i in blacklist) {
-            var li = document.createElement("li");
-            li.classList.add("blacklist-" + i);
-            var a = document.createElement("a");
-            if (blacklist[i].url == "")
-                a.href = "javascript:void(0);"
-            else a.href = blacklist[i].url;
-            a.innerText = blacklist[i].name;
-            li.appendChild(a);
-            var btn = document.createElement("span");
-            btn.classList.add("icon-plus");
-            btn.addEventListener("click", () => delBlackList2(i));
-            li.appendChild(btn);
-            ul.appendChild(li);
+    batch(editor_root, el => {
+        let table = document.createElement("table");
+        table.id = elid;
+        table.classList.add("settings");
+        let tbody = document.createElement("tbody");
+        {
+            let tr = document.createElement("tr");
+            let td = document.createElement("td");
+            td.setAttribute("valign", "top");
+            td.setAttribute("width", "100%");
+            td.colSpan = 2;
+            td.innerHTML = '<h2 class="subtitle">Staff黑名单</h2>';
+            tr.appendChild(td);
+            tbody.appendChild(tr);
         }
-        var input = document.createElement("input");
-        input.type = "text";
-        input.maxLength = 100;
-        ul.appendChild(input);
-        var add = document.createElement("a");
-        add.classList.add("iadd");
-        add.innerText = "手动添加";
-        add.addEventListener("click", () => addBlackList2());
-        ul.appendChild(add);
-        table.appendChild(ul);
+        table.appendChild(tbody);
+        for (let i = 0; i < blacklist.length; i++) {
+            let tr = document.createElement("tr");
+            tr.classList.add("blacklist-" + i);
+            {
+                let td = document.createElement("td");
+                let a = document.createElement("a");
+                if (blacklist[i].url == "")
+                    a.href = "javascript:void(0);"
+                else a.href = blacklist[i].url;
+                a.innerText = blacklist[i].name;
+                td.appendChild(a);
+                tr.appendChild(td);
+            }
+            {
+                let td = document.createElement("td");
+                td.appendChild(createDelBtn(i));
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        }
+        {
+            {
+                let tr = document.createElement("tr");
+                {
+                    let td = document.createElement("td");
+                    td.setAttribute("width", "100%");
+                    td.colSpan = 2;
+                    {
+                        let input = document.createElement("input");
+                        input.classList.add("inputtext");
+                        input.type = "text";
+                        td.appendChild(input);
+                    }
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+            {
+                let tr = document.createElement("tr");
+                {
+                    let td = document.createElement("td");
+                    td.setAttribute("width", "100%");
+                    td.colSpan = 2;
+                    let btn = document.createElement("input");
+                    btn.classList.add("inputBtn");
+                    btn.classList.add("add-blacklist-btn");
+                    btn.value = "手动添加";
+                    btn.type = "submit";
+                    btn.addEventListener("click", e => {
+                        e.preventDefault();
+                        addBlackList2();
+                    });
+                    td.appendChild(btn);
+                    tr.appendChild(td);
+                }
+                tbody.appendChild(tr);
+            }
+        }
         el.appendChild(table);
     });
 };
 
-const proc = (root, func, child) => {
+const proc = (root, func, watchChild) => {
     func();
-    batch(root, el => new MutationObserver(func).observe(el, { childList: child, subtree: child }));
+    if (watchChild) {
+        let mo = new MutationObserver(func);
+        batch(root, el => mo.observe(el, { childList: true, subtree: true }));
+    }
 };
 
 if (blacklist.length != 0 && /^\/subject\/\d+/i.test(location.pathname))
-    proc("#infobox", markstaff, true);
+    waitel(markstaff_root, () => proc(markstaff_root, markstaff, true));
 else if (/^\/person\/\d+/i.test(location.pathname))
-    proc("#headerSubject", quickedit, false);
+    waitel(quickedit_root, () => proc(quickedit_root, quickedit, false));
 else if (location.pathname == "/settings/privacy")
-    proc("#columnB", editor, false);
+    waitel(editor_root, () => proc(editor_root, editor, false));
