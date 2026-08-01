@@ -26,25 +26,63 @@
         let cnName = document.querySelector('#firstHeading')?.innerText.trim() || "";
         let enName = document.querySelector('.charname-en')?.innerText.trim() || "";
 
-        let archiveText = "";
-        for (let el of document.querySelectorAll('div,td,p')) {
-            if (el.innerText.includes('【性别】') && el.innerText.includes('【生日】')) { archiveText = el.innerText; break; }
-        }
-        let gender = archiveText.match(/【性别】\s*([^\s【]+)/)?.[1] || "";
-        let birthday = archiveText.match(/【生日】\s*([^\s【]+)/)?.[1] || "";
-        let height = archiveText.match(/【身高】\s*([^\s【]+)/)?.[1] || "";
+        const archiveElements = [...document.querySelectorAll('div,td,p')]
+            .filter(el =>
+                el.innerText.includes('【性别】') &&
+                el.innerText.includes('【生日】') &&
+                el.innerText.includes('【身高】')
+            )
+            .sort((a, b) => a.innerText.length - b.innerText.length);
 
-        let jpCv = document.querySelector('a[href*="配音一览#日文"]')?.innerText.trim() || "";
+        let archiveText = archiveElements[0]?.innerText || "";
+
+        function getArchiveEntry(label) {
+            const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            const match = archiveText.match(
+                new RegExp(
+                    `【${escapedLabel}】\\s*([\\s\\S]*?)(?=\\s*【[^】]+】|$)`
+                )
+            );
+
+            return match?.[1]
+                ?.replace(/\s+/g, ' ')
+                .trim() || "";
+        }
+
+        let gender = getArchiveEntry('性别');
+        let combatExperience = getArchiveEntry('战斗经验');
+        let birthplace = getArchiveEntry('出身地');
+        let birthday = getArchiveEntry('生日');
+        let race = getArchiveEntry('种族');
+        let height = getArchiveEntry('身高');
+        let infectionStatus = getArchiveEntry('矿石病感染情况');
+
+        let jpCv = document.querySelector('a[href*="配音一览#日文"]')
+            ?.innerText.trim() || "";
 
         let lines = [], collect = false;
+
         for (let r of document.querySelectorAll('tr')) {
             let t = r.innerText.trim();
+
             if (t.includes('临床诊断分析')) break;
+
             if (collect) {
-                t.split('\n').forEach(v => { v = v.trim(); if (v && v !== '初始开放') lines.push(v); });
+                t.split('\n').forEach(v => {
+                    v = v.trim();
+
+                    if (v && v !== '初始开放') {
+                        lines.push(v);
+                    }
+                });
             }
-            if (t.includes('客观履历')) collect = true;
+
+            if (t.includes('客观履历')) {
+                collect = true;
+            }
         }
+
         let introText = lines.join('\n');
 
         const data = `{{Infobox Crt
@@ -58,11 +96,15 @@
 [昵称|]
 }
 |性别= ${gender}
+|战斗经验= ${combatExperience}
+|出身地= ${birthplace}
 |生日= ${birthday}
+|种族= ${race}
 |血型=
 |身高= ${height}
 |体重=
 |BWH=
+|矿石病感染情况= ${infectionStatus}
 |引用来源={
 }
 }}
@@ -83,10 +125,24 @@ ${introText}`;
 
     function downloadImg(name) {
         let img = document.querySelector('#img-elite0');
-        if (!img) { GM_notification("文本已复制 (未找到立绘)"); return; }
-        let src = img.src.startsWith('//') ? 'https:' + img.src : img.src.startsWith('/') ? 'https://prts.wiki' + img.src : img.src;
+
+        if (!img) {
+            GM_notification("文本已复制 (未找到立绘)");
+            return;
+        }
+
+        let src = img.src.startsWith('//')
+            ? 'https:' + img.src
+            : img.src.startsWith('/')
+                ? 'https://prts.wiki' + img.src
+                : img.src;
+
         src = src.split('?')[0];
-        let ext = src.includes('.') ? src.split('.').pop() : 'png';
+
+        let ext = src.includes('.')
+            ? src.split('.').pop()
+            : 'png';
+
         GM_download({
             url: src,
             name: `${name}_Elite0.${ext}`,

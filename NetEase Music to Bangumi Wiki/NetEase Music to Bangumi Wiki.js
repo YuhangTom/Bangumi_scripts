@@ -29,7 +29,15 @@
 
     function exportAlbum(doc) {
         const albumTitle = doc.querySelector('.tit h2')?.innerText.trim() || "";
-        let artist = (doc.querySelector('.intr span[title]')?.getAttribute('title') || doc.querySelector('.intr a.s-fc7')?.innerText || "").split('/').map(v => v.trim()).join('、');
+        let artist = (
+            doc.querySelector('.intr span[title]')?.getAttribute('title') ||
+            doc.querySelector('.intr a.s-fc7')?.innerText ||
+            ""
+        )
+            .split('/')
+            .map(v => v.trim())
+            .filter(v => v && v !== '塞壬唱片-MSR')
+            .join('、');
 
         let releaseDate = "", label = "";
         doc.querySelectorAll('.intr').forEach(p => {
