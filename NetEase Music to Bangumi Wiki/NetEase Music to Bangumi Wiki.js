@@ -25,35 +25,92 @@
     btn.innerText = '导出 Wiki & 封面';
     document.body.appendChild(btn);
 
-    btn.onclick = () => { const f = document.querySelector('#g_iframe'); if (!f) return; const d = f.contentDocument || f.contentWindow.document; if (!d.querySelector('.m-info')) return; exportAlbum(d) };
+    btn.onclick = () => {
+        const f = document.querySelector('#g_iframe');
+        if (!f) return;
+
+        const d = f.contentDocument || f.contentWindow.document;
+        if (!d.querySelector('.m-info')) return;
+
+        exportAlbum(d);
+    };
 
     function exportAlbum(doc) {
         const albumTitle = doc.querySelector('.tit h2')?.innerText.trim() || "";
-        let artist = (
+
+        const rawArtist =
             doc.querySelector('.intr span[title]')?.getAttribute('title') ||
             doc.querySelector('.intr a.s-fc7')?.innerText ||
-            ""
-        )
+            "";
+
+        let artists = rawArtist
             .split('/')
             .map(v => v.trim())
-            .filter(v => v && v !== '塞壬唱片-MSR')
-            .join('、');
+            .filter(v => v);
 
-        let releaseDate = "", label = "";
+        const hasMSR = artists.includes('塞壬唱片-MSR');
+
+        if (hasMSR) {
+            artists = artists.filter(v => v !== '塞壬唱片-MSR');
+        }
+
+        let artist = artists.join('、');
+
+        let releaseDate = "";
+        let label = "";
+
         doc.querySelectorAll('.intr').forEach(p => {
             let t = p.innerText;
-            if (t.includes('发行时间：')) releaseDate = t.replace('发行时间：', '').trim();
-            if (t.includes('发行公司：')) label = t.replace('发行公司：', '').trim();
+
+            if (t.includes('发行时间：')) {
+                releaseDate = t.replace('发行时间：', '').trim();
+            }
+
+            if (t.includes('发行公司：')) {
+                label = t.replace('发行公司：', '').trim();
+            }
         });
 
-        let rawDesc = doc.querySelector('#album-desc-more')?.innerHTML || doc.querySelector('.n-albdesc')?.innerHTML || "";
-        let description = rawDesc.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/^\s*(专辑)?介绍[：:]\s*/, '').trim();
+        if (hasMSR) {
+            let labels = label
+                .split(/[\/、]/)
+                .map(v => v.trim())
+                .filter(v => v);
+
+            if (!labels.includes('塞壬唱片-MSR')) {
+                labels.push('塞壬唱片-MSR');
+            }
+
+            label = labels.join('、');
+        }
+
+        let rawDesc =
+            doc.querySelector('#album-desc-more')?.innerHTML ||
+            doc.querySelector('.n-albdesc')?.innerHTML ||
+            "";
+
+        let description = rawDesc
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<[^>]+>/g, '')
+            .replace(/^\s*(专辑)?介绍[：:]\s*/, '')
+            .trim();
 
         let tracklist = [];
+
         doc.querySelectorAll('.m-table tbody tr').forEach(r => {
-            let c = r.querySelector('.txt'); if (!c) return;
-            let n = c.querySelector('b')?.getAttribute('title') || c.querySelector('b')?.innerText || c.innerText.trim();
-            let alias = c.querySelector('.alias')?.innerText || c.querySelector('.tns')?.innerText || "";
+            let c = r.querySelector('.txt');
+            if (!c) return;
+
+            let n =
+                c.querySelector('b')?.getAttribute('title') ||
+                c.querySelector('b')?.innerText ||
+                c.innerText.trim();
+
+            let alias =
+                c.querySelector('.alias')?.innerText ||
+                c.querySelector('.tns')?.innerText ||
+                "";
+
             tracklist.push((n + (alias ? " " + alias : "")).trim());
         });
 
@@ -92,9 +149,17 @@ ${tracklist.join('\n')}
     }
 
     function downloadCover(doc, name) {
-        let img = doc.querySelector('.u-cover img'); if (!img) { GM_notification("数据已复制 (未找到封面)"); return; }
+        let img = doc.querySelector('.u-cover img');
+
+        if (!img) {
+            GM_notification("数据已复制 (未找到封面)");
+            return;
+        }
+
         let size = "800y800";
-        let src = (img.getAttribute('data-src') || img.src).split('?')[0] + `?param=${size}`;
+        let src =
+            (img.getAttribute('data-src') || img.src).split('?')[0] +
+            `?param=${size}`;
 
         GM_download({
             url: src,
