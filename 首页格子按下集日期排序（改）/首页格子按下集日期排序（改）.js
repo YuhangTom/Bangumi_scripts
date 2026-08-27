@@ -28,7 +28,65 @@ let sortOrder = 'asc';
 let aggregateDays = 1;
 let hasScrolled = false;
 
-let accountTimeOffsetMinutes = -new Date().getTimezoneOffset();
+let accountTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+let accountFixedOffsetMinutes = -new Date().getTimezoneOffset();
+
+function isValidTimeZone(timeZone) {
+    if (!timeZone) return false;
+    try {
+        new Intl.DateTimeFormat('en-US', { timeZone }).format(new Date());
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function parseOffsetMinutes(text) {
+    const match = (text || '').match(/GMT\s*([+-])\s*(\d{1,2})(?::(\d{2}))?/i);
+    if (!match) return null;
+    const sign = match[1] === '-' ? -1 : 1;
+    return sign * (parseInt(match[2], 10) * 60 + parseInt(match[3] || '0', 10));
+}
+
+function resolveAccountTimeZone(selectedOption) {
+    const candidates = [
+        selectedOption.value,
+        selectedOption.getAttribute('data-timezone'),
+        selectedOption.getAttribute('data-time-zone'),
+        selectedOption.getAttribute('data-tz')
+    ];
+
+    for (const candidate of candidates) {
+        if (isValidTimeZone(candidate)) return candidate;
+    }
+
+    const label = selectedOption.textContent || '';
+    const mappings = [
+        [/Hawaii/i, 'Pacific/Honolulu'],
+        [/Alaska/i, 'America/Anchorage'],
+        [/Pacific Time\s*\(US\s*&\s*Canada\)/i, 'America/Los_Angeles'],
+        [/Arizona/i, 'America/Phoenix'],
+        [/Mountain Time\s*\(US\s*&\s*Canada\)/i, 'America/Denver'],
+        [/Central Time\s*\(US\s*&\s*Canada\)/i, 'America/Chicago'],
+        [/Eastern Time\s*\(US\s*&\s*Canada\)/i, 'America/New_York'],
+        [/Atlantic Time\s*\(Canada\)/i, 'America/Halifax'],
+        [/Newfoundland/i, 'America/St_Johns'],
+        [/London|Edinburgh|Dublin|Lisbon|Western Europe Time/i, 'Europe/London'],
+        [/Brussels|Copenhagen|Madrid|Paris/i, 'Europe/Paris'],
+        [/Amsterdam|Berlin|Bern|Rome|Stockholm|Vienna/i, 'Europe/Berlin'],
+        [/Athens|Bucharest|Helsinki|Kyiv|Riga|Sofia|Tallinn|Vilnius/i, 'Europe/Helsinki'],
+        [/Adelaide/i, 'Australia/Adelaide'],
+        [/Canberra|Melbourne|Sydney/i, 'Australia/Sydney'],
+        [/Hobart/i, 'Australia/Hobart'],
+        [/Auckland|Wellington/i, 'Pacific/Auckland']
+    ];
+
+    for (const [pattern, timeZone] of mappings) {
+        if (pattern.test(label) && isValidTimeZone(timeZone)) return timeZone;
+    }
+
+    return null;
+}
 
 async function initAccountTimeOffset() {
     try {
@@ -43,46 +101,107 @@ async function initAccountTimeOffset() {
 
         const timezoneSelect = Array.from(doc.querySelectorAll('select')).find(select =>
             Array.from(select.options).some(option =>
-                /\(\s*GMT\s*[+-]\s*\d{1,2}(?::\d{2})?\s*\)/i.test(option.textContent || '')
+                /\(\s*GMT(?:\s*[+-]\s*\d{1,2}(?::\d{2})?)?\s*\)/i.test(option.textContent || '')
             )
         );
         if (!timezoneSelect) throw new Error('Timezone select not found');
 
-        const selectedOption = timezoneSelect.selectedOptions[0] ||
-            timezoneSelect.querySelector('option[selected]');
+        const selectedOption =
+            timezoneSelect.querySelector('option[selected]') ||
+            timezoneSelect.selectedOptions[0];
         if (!selectedOption) throw new Error('Selected timezone option not found');
 
-        const match = (selectedOption.textContent || '').match(
-            /GMT\s*([+-])\s*(\d{1,2})(?::(\d{2}))?/i
-        );
-        if (!match) throw new Error('Timezone offset not found');
+        const offset = parseOffsetMinutes(selectedOption.textContent || '');
+        if (offset !== null) accountFixedOffsetMinutes = offset;
 
-        const sign = match[1] === '-' ? -1 : 1;
-        accountTimeOffsetMinutes =
-            sign * (parseInt(match[2], 10) * 60 + parseInt(match[3] || '0', 10));
+        accountTimeZone = resolveAccountTimeZone(selectedOption);
     } catch (e) {
         console.warn('[Bangumi 日期排序分组] 无法读取账号时区，回退到浏览器时区。', e);
     }
 }
 
+function getTimeZoneDateTimeParts(date, timeZone) {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(date);
+
+    const values = {};
+    for (const part of parts) {
+        if (part.type !== 'literal') values[part.type] = part.value;
+    }
+
+    return {
+        year: parseInt(values.year, 10),
+        month: parseInt(values.month, 10) - 1,
+        day: parseInt(values.day, 10),
+        hour: parseInt(values.hour, 10),
+        minute: parseInt(values.minute, 10),
+        second: parseInt(values.second, 10)
+    };
+}
+
+function getTimeZoneOffsetMinutes(date, timeZone) {
+    const p = getTimeZoneDateTimeParts(date, timeZone);
+    const localAsUtc = Date.UTC(
+        p.year,
+        p.month,
+        p.day,
+        p.hour,
+        p.minute,
+        p.second
+    );
+    return Math.round((localAsUtc - date.getTime()) / 60000);
+}
+
+function createDateInAccountTimezone(
+    year,
+    month,
+    day,
+    hour = 0,
+    minute = 0,
+    second = 0
+) {
+    const wallTime = Date.UTC(year, month, day, hour, minute, second);
+
+    if (!accountTimeZone) {
+        return new Date(wallTime - accountFixedOffsetMinutes * 60 * 1000);
+    }
+
+    let date = new Date(wallTime);
+    let offset = getTimeZoneOffsetMinutes(date, accountTimeZone);
+
+    for (let i = 0; i < 3; i++) {
+        const nextDate = new Date(wallTime - offset * 60 * 1000);
+        const nextOffset = getTimeZoneOffsetMinutes(nextDate, accountTimeZone);
+        date = nextDate;
+        if (nextOffset === offset) break;
+        offset = nextOffset;
+    }
+
+    return date;
+}
+
 function parseDateInAccountTimezone(dateStr) {
     const text = dateStr.trim();
-
     const match = text.match(
         /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
     );
 
     if (match) {
-        const year = parseInt(match[1], 10);
-        const month = parseInt(match[2], 10) - 1;
-        const day = parseInt(match[3], 10);
-        const hour = parseInt(match[4] || '0', 10);
-        const minute = parseInt(match[5] || '0', 10);
-        const second = parseInt(match[6] || '0', 10);
-
-        return new Date(
-            Date.UTC(year, month, day, hour, minute, second) -
-            accountTimeOffsetMinutes * 60 * 1000
+        return createDateInAccountTimezone(
+            parseInt(match[1], 10),
+            parseInt(match[2], 10) - 1,
+            parseInt(match[3], 10),
+            parseInt(match[4] || '0', 10),
+            parseInt(match[5] || '0', 10),
+            parseInt(match[6] || '0', 10)
         );
     }
 
@@ -90,8 +209,17 @@ function parseDateInAccountTimezone(dateStr) {
 }
 
 function getAccountDateParts(date) {
-    const shifted = new Date(date.getTime() + accountTimeOffsetMinutes * 60 * 1000);
+    if (accountTimeZone) {
+        const p = getTimeZoneDateTimeParts(date, accountTimeZone);
+        return {
+            year: p.year,
+            month: p.month,
+            day: p.day,
+            weekday: new Date(Date.UTC(p.year, p.month, p.day)).getUTCDay()
+        };
+    }
 
+    const shifted = new Date(date.getTime() + accountFixedOffsetMinutes * 60 * 1000);
     return {
         year: shifted.getUTCFullYear(),
         month: shifted.getUTCMonth(),
@@ -102,10 +230,12 @@ function getAccountDateParts(date) {
 
 function getAccountStartOfDay(date, dayOffset = 0) {
     const p = getAccountDateParts(date);
+    const calendarDate = new Date(Date.UTC(p.year, p.month, p.day + dayOffset));
 
-    return new Date(
-        Date.UTC(p.year, p.month, p.day + dayOffset) -
-        accountTimeOffsetMinutes * 60 * 1000
+    return createDateInAccountTimezone(
+        calendarDate.getUTCFullYear(),
+        calendarDate.getUTCMonth(),
+        calendarDate.getUTCDate()
     );
 }
 
